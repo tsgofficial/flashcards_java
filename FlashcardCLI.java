@@ -67,33 +67,57 @@ public class FlashcardCLI {
                 return;
             }
 
-            CardOrganizer organizer = new RecentMistakesFirstSorter(order);
-            flashcards = organizer.organize(flashcards);
+            // Sort flashcards based on the order option
+            CardOrganizer organizer;
+            if (order.equals("recent-mistakes-first")) {
+                organizer = new RecentMistakesFirstSorter(order);
+            } else if (order.equals("worst-first")) {
+                organizer = new WorstFirstSorter(order);
+            } else {
+                organizer = new RandomSorter(order);  // Random sorting is handled here, if you want a separate class for it.
+            }
 
             // Game loop - asking questions one at a time
             Scanner scanner = new Scanner(System.in);
-            for (Flashcard flashcard : flashcards) {
-                if (invertCards) {
-                    System.out.println("Answer: " + flashcard.getQuestion());
-                    System.out.println("Question: " + flashcard.getAnswer());
-                } else {
-                    System.out.println("Question: " + flashcard.getQuestion());
+
+            // Track flashcard repetitions
+            while (true) {
+                boolean allAnsweredCorrectly = true;
+                flashcards = organizer.organize(flashcards);
+                for (Flashcard flashcard : flashcards) {
+                    if (flashcard.getCorrectCount() < repetitions) {
+                        allAnsweredCorrectly = false;
+
+                        if (invertCards) {
+                            System.out.println("Answer: " + flashcard.getQuestion());
+                            System.out.println("Question: " + flashcard.getAnswer());
+                        } else {
+                            System.out.println("Question: " + flashcard.getQuestion());
+                        }
+
+                        // Wait for user input
+                        String userAnswer = scanner.nextLine().trim();
+
+                        // Check if the answer is correct
+                        if (userAnswer.equalsIgnoreCase(flashcard.getAnswer())) {
+                            flashcard.incrementCorrectCount();
+                            System.out.println("Correct!");
+                            System.out.println("Correct count: " + flashcard.getCorrectCount());
+
+                        } else {
+                            flashcard.incrementIncorrectCount();
+                            System.out.println("Incorrect. The correct answer was: " + flashcard.getAnswer());
+                            System.out.println("Incorrect count: " + flashcard.getIncorrectCount());
+                        }
+                    }
                 }
 
-                // Wait for user input
-                String userAnswer = scanner.nextLine().trim();
-
-                // Check if the answer is correct
-                if (userAnswer.equalsIgnoreCase(flashcard.getAnswer())) {
-                    System.out.println("Correct!");
-                } else {
-                    System.out.println("Incorrect. The correct answer was: " + flashcard.getAnswer());
+                // End game loop if all cards have been answered correctly enough times
+                if (allAnsweredCorrectly) {
+                    System.out.println("All cards have been answered correctly " + repetitions + " times.");
+                    break;
                 }
-
-                // If you want to repeat cards based on repetition logic, you can handle it here
             }
-
-            System.out.println("All flashcards have been reviewed.");
 
         } catch (IOException e) {
             System.out.println("Error loading flashcards: " + e.getMessage());

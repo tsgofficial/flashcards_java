@@ -1,5 +1,5 @@
-What is the capital of France? | Paris
-What is 2 + 2? | 4
-Who wrote '1984'? | George Orwell
-What is the square root of 16? | 4
-What is the chemical symbol for water? | H2O
+A large body of water that is surrounded by land | Lake
+A domesticated carnivorous mammal that is often kept as a pet | Dog
+A large, heavy machine used for carrying materials | Crane
+A device that measures temperature | Thermometer
+A person who writes books, articles, or other written works | Author
