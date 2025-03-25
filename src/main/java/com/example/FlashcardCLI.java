@@ -1,19 +1,22 @@
+package com.example;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
 
 public class FlashcardCLI {
 
-    private static final String HELP_MESSAGE = """
-        Usage: flashcard <cards-file> [options]
-        Options:
-        --help          Show help information
-        --order <order> Organize the order, default 'random'
-        --repetitions <num> How many times to answer a card correctly
-        --invertCards   Show question and answer swapped
-        """;
+    private static final String HELP_MESSAGE
+            = "Usage: flashcard <cards-file> [options]\n"
+            + "Options:\n"
+            + "--help          Show help information\n"
+            + "--order <order> Organize the order, default 'random'\n"
+            + "--repetitions <num> How many times to answer a card correctly\n"
+            + "--invertCards   Show question and answer swapped\n";
 
     private static final String[] VALID_ORDERS = {"random", "worst-first", "recent-mistakes-first"};
     private static final String ORDER_DEFAULT = "random";
@@ -31,7 +34,7 @@ public class FlashcardCLI {
 
         for (int i = 1; i < args.length; i++) {
             switch (args[i]) {
-                case "--order" -> {
+                case "--order": {
                     if (i + 1 < args.length) {
                         order = args[++i];
                         if (!Arrays.asList(VALID_ORDERS).contains(order)) {
@@ -43,17 +46,19 @@ public class FlashcardCLI {
                         return;
                     }
                 }
-                case "--repetitions" -> {
+                case "--repetitions": {
                     if (i + 1 < args.length) {
                         repetitions = Integer.parseInt(args[++i]);
                     } else {
                         System.out.println("--repetitions option requires an argument.");
                         return;
                     }
+                    System.out.println("You must answer correctly " + repetitions + " times.");
                 }
-                case "--invertCards" ->
+                case "--invertCards":
                     invertCards = true;
-                default -> {
+                    System.out.println("Invert value: " + invertCards);
+                default: {
                     System.out.println("Unknown option: " + args[i]);
                     return;
                 }
@@ -69,14 +74,19 @@ public class FlashcardCLI {
                 return;
             }
 
-            CardOrganizer organizer = switch (order) {
-                case "recent-mistakes-first" ->
-                    new RecentMistakesFirstSorter(order);
-                case "worst-first" ->
-                    new WorstFirstSorter(order);
-                default ->
-                    new RandomSorter(order);
-            };
+            CardOrganizer organizer;
+
+            switch (order) {
+                case "recent-mistakes-first":
+                    organizer = new RecentMistakesFirstSorter(order);
+                    break;
+                case "worst-first":
+                    organizer = new WorstFirstSorter(order);
+                    break;
+                default:
+                    organizer = new RandomSorter(order);
+                    break;
+            }
 
             Scanner scanner = new Scanner(System.in);
 
