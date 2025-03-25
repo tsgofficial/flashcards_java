@@ -109,12 +109,10 @@ public class FlashcardCLI {
                         if (userAnswer.equalsIgnoreCase(flashcard.getAnswer())) {
                             flashcard.incrementCorrectCount();
                             System.out.println("Correct!");
-                            System.out.println("Correct count: " + flashcard.getCorrectCount());
 
                         } else {
                             flashcard.incrementIncorrectCount();
                             System.out.println("Incorrect. The correct answer was: " + flashcard.getAnswer());
-                            System.out.println("Incorrect count: " + flashcard.getIncorrectCount());
                         }
                     }
                 }
