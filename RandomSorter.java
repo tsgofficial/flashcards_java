@@ -4,7 +4,7 @@ import java.util.List;
 
 public class RandomSorter implements CardOrganizer {
 
-    private String order;
+    final private String order;
 
     public RandomSorter(String order) {
         this.order = order;
@@ -13,7 +13,6 @@ public class RandomSorter implements CardOrganizer {
     @Override
     public List<Flashcard> organize(List<Flashcard> flashcards) {
         if (order.equals("random")) {
-            // Randomly shuffle the flashcards
             Collections.shuffle(flashcards);
         }
         return flashcards;

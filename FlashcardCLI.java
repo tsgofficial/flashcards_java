@@ -6,12 +6,14 @@ import java.util.*;
 
 public class FlashcardCLI {
 
-    private static final String HELP_MESSAGE = "Usage: flashcard <cards-file> [options]\n"
-            + "Options:\n"
-            + "--help          Show help information\n"
-            + "--order <order> Organize the order, default 'random'\n"
-            + "--repetitions <num> How many times to answer a card correctly\n"
-            + "--invertCards   Show question and answer swapped\n";
+    private static final String HELP_MESSAGE = """
+        Usage: flashcard <cards-file> [options]
+        Options:
+        --help          Show help information
+        --order <order> Organize the order, default 'random'
+        --repetitions <num> How many times to answer a card correctly
+        --invertCards   Show question and answer swapped
+        """;
 
     private static final String[] VALID_ORDERS = {"random", "worst-first", "recent-mistakes-first"};
     private static final String ORDER_DEFAULT = "random";
@@ -27,10 +29,9 @@ public class FlashcardCLI {
         int repetitions = 1;
         boolean invertCards = false;
 
-        // Parse options
         for (int i = 1; i < args.length; i++) {
             switch (args[i]) {
-                case "--order":
+                case "--order" -> {
                     if (i + 1 < args.length) {
                         order = args[++i];
                         if (!Arrays.asList(VALID_ORDERS).contains(order)) {
@@ -41,22 +42,23 @@ public class FlashcardCLI {
                         System.out.println("--order option requires an argument.");
                         return;
                     }
-                    break;
-                case "--repetitions":
+                }
+                case "--repetitions" -> {
                     if (i + 1 < args.length) {
                         repetitions = Integer.parseInt(args[++i]);
                     } else {
                         System.out.println("--repetitions option requires an argument.");
                         return;
                     }
-                    break;
-                case "--invertCards":
+                }
+                case "--invertCards" ->
                     invertCards = true;
-                    break;
-                default:
+                default -> {
                     System.out.println("Unknown option: " + args[i]);
                     return;
+                }
             }
+
         }
 
         try {
@@ -67,20 +69,17 @@ public class FlashcardCLI {
                 return;
             }
 
-            // Sort flashcards based on the order option
-            CardOrganizer organizer;
-            if (order.equals("recent-mistakes-first")) {
-                organizer = new RecentMistakesFirstSorter(order);
-            } else if (order.equals("worst-first")) {
-                organizer = new WorstFirstSorter(order);
-            } else {
-                organizer = new RandomSorter(order);  // Random sorting is handled here, if you want a separate class for it.
-            }
+            CardOrganizer organizer = switch (order) {
+                case "recent-mistakes-first" ->
+                    new RecentMistakesFirstSorter(order);
+                case "worst-first" ->
+                    new WorstFirstSorter(order);
+                default ->
+                    new RandomSorter(order);
+            };
 
-            // Game loop - asking questions one at a time
             Scanner scanner = new Scanner(System.in);
 
-            // Track flashcard repetitions
             while (true) {
                 boolean allAnsweredCorrectly = true;
                 flashcards = organizer.organize(flashcards);
@@ -95,10 +94,8 @@ public class FlashcardCLI {
                             System.out.println("Question: " + flashcard.getQuestion());
                         }
 
-                        // Wait for user input
                         String userAnswer = scanner.nextLine().trim();
 
-                        // Check if the answer is correct
                         if (userAnswer.equalsIgnoreCase(flashcard.getAnswer())) {
                             flashcard.incrementCorrectCount();
                             System.out.println("Correct!");
@@ -112,7 +109,6 @@ public class FlashcardCLI {
                     }
                 }
 
-                // End game loop if all cards have been answered correctly enough times
                 if (allAnsweredCorrectly) {
                     System.out.println("All cards have been answered correctly " + repetitions + " times.");
                     break;
@@ -126,16 +122,18 @@ public class FlashcardCLI {
 
     private static List<Flashcard> loadFlashcards(String cardsFile) throws IOException {
         List<Flashcard> flashcards = new ArrayList<>();
-        BufferedReader reader = new BufferedReader(new FileReader(cardsFile));
 
-        String line;
-        while ((line = reader.readLine()) != null) {
-            String[] parts = line.split("\\|");
-            if (parts.length == 2) {
-                flashcards.add(new Flashcard(parts[0].trim(), parts[1].trim()));
+        try (BufferedReader reader = new BufferedReader(new FileReader(cardsFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                if (parts.length == 2) {
+                    flashcards.add(new Flashcard(parts[0].trim(), parts[1].trim()));
+                }
             }
+        } catch (IOException e) {
+            System.out.println("Error loading flashcards: " + e.getMessage());
         }
-        reader.close();
 
         return flashcards;
     }

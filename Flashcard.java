@@ -3,18 +3,18 @@ import java.time.Instant;
 
 public class Flashcard {
 
-    private String question;
-    private String answer;
-    private int correctCount;  // Number of times answered correctly
-    private int incorrectCount; // Number of times answered incorrectly
-    private long lastIncorrectTime; // Timestamp of the last incorrect answer
+    final private String question;
+    final private String answer;
+    private int correctCount;
+    private int incorrectCount;
+    private long lastIncorrectTime;
 
     public Flashcard(String question, String answer) {
         this.question = question;
         this.answer = answer;
         this.correctCount = 0;
         this.incorrectCount = 0;
-        this.lastIncorrectTime = 0; // Default to 0 when never answered incorrectly
+        this.lastIncorrectTime = 0;
     }
 
     public String getQuestion() {
@@ -39,7 +39,7 @@ public class Flashcard {
 
     public void incrementIncorrectCount() {
         this.incorrectCount++;
-        this.lastIncorrectTime = Instant.now().toEpochMilli();  // Set the current timestamp when the answer is incorrect
+        this.lastIncorrectTime = Instant.now().toEpochMilli();
     }
 
     public long getLastIncorrectTime() {
